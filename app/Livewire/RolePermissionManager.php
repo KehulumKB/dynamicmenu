@@ -10,12 +10,21 @@ use Spatie\Permission\Models\Permission;
 
 class RolePermissionManager extends Component
 {
-    public $roles, $permissions, $selectedRole, $selectedPermissions = [];
+    public $users, $selectedRoles, $selectedUser, $roles, $permissions, $selectedRole, $selectedPermissions = [];
 
     public function mount()
     {
         $this->roles = Role::all();
         $this->permissions = Permission::all();
+        // Fetch the user and permissions
+        $this->users = User::all();
+    }
+
+    public function updatedSelectedUser($userId)
+    {
+        $user = User::find($userId);
+        // $this->selectedRoles = $user ? $user->roles->pluck('id')->toArray() : [];
+        $this->selectedPermissions = $user ? $user->permissions->pluck('id')->toArray() : [];
     }
 
     public function updatedSelectedRole($roleId)
@@ -42,58 +51,58 @@ class RolePermissionManager extends Component
     //     }
     // }
 
-    // public function updatePermissions()
-    // {
-    //     if (!$this->selectedUser) {
-    //         session()->flash('error', 'Please select a user.');
-    //         return;
-    //     }
-
-    //     $user = User::find($this->selectedUser);
-
-    //     if ($user) {
-    //         // Convert selected permission IDs to permission names
-    //         $permissions = Permission::whereIn('id', $this->selectedPermissions)->pluck('name')->toArray();
-
-    //         // Assign permissions directly to the user
-    //         $user->syncPermissions($permissions);
-
-    //         // Assign roles to the user (if any selected)
-    //         if (!empty($this->selectedRoles)) {
-    //             $roles = Role::whereIn('id', $this->selectedRoles)->pluck('name')->toArray();
-    //             $user->syncRoles($roles); // Sync roles dynamically
-    //         }
-
-    //         session()->flash('message', 'User roles and permissions updated successfully.');
-    //     }
-    // }
-
-    public function updateRolePermissions()
+    public function updatePermissions()
     {
-        // Validate that a role is selected
-        if (!$this->selectedRole) {
-            session()->flash('error', 'Please select a role.');
+        if (!$this->selectedUser) {
+            session()->flash('error', 'Please select a user.');
             return;
         }
 
-        // Find the selected role
-        $role = Role::find($this->selectedRole);
+        $user = User::find($this->selectedUser);
 
-        if ($role) {
-            // Convert the selected permission IDs to permission names
+        if ($user) {
+            // Convert selected permission IDs to permission names
             $permissions = Permission::whereIn('id', $this->selectedPermissions)->pluck('name')->toArray();
 
-            // Sync permissions for the role
-            $role->syncPermissions($permissions);  // This will only modify the role's permissions
+            // Assign permissions directly to the user
+            $user->syncPermissions($permissions);
 
-            // Flash success message
-            session()->flash('message', 'Role permissions updated successfully.');
-        } else {
-            session()->flash('error', 'Role not found.');
+            // Assign roles to the user (if any selected)
+            if (!empty($this->selectedRoles)) {
+                $roles = Role::whereIn('id', $this->selectedRoles)->pluck('name')->toArray();
+                $user->syncRoles($roles); // Sync roles dynamically
+            }
+
+            session()->flash('message', 'User roles and permissions updated successfully.');
         }
     }
 
-    
+    // public function updateRolePermissions()
+    // {
+    //     // Validate that a role is selected
+    //     if (!$this->selectedRole) {
+    //         session()->flash('error', 'Please select a role.');
+    //         return;
+    //     }
+
+    //     // Find the selected role
+    //     $role = Role::find($this->selectedRole);
+
+    //     if ($role) {
+    //         // Convert the selected permission IDs to permission names
+    //         $permissions = Permission::whereIn('id', $this->selectedPermissions)->pluck('name')->toArray();
+
+    //         // Sync permissions for the role
+    //         $role->syncPermissions($permissions);  // This will only modify the role's permissions
+
+    //         // Flash success message
+    //         session()->flash('message', 'Role permissions updated successfully.');
+    //     } else {
+    //         session()->flash('error', 'Role not found.');
+    //     }
+    // }
+
+
     public function render()
     {
         return view('livewire.role-permission-manager');

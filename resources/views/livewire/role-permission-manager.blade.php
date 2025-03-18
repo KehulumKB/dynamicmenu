@@ -8,27 +8,31 @@
         @endforeach
     </select>
 
-    @if($selectedRole)
+    <select wire:model.lazy="selectedUser">
+        <option value="">Select User</option>
+        @foreach($users as $user)
+            <option value="{{ $user->id }}">{{ ucfirst($user->name) }}</option>
+        @endforeach
+    </select>
+
+
+    @if($selectedUser)
         <h3>Permissions:</h3>
-        {{-- @foreach($permissions as $permission)
+        @foreach($permissions as $permission)
             <label>
                 <input type="checkbox" wire:model="selectedPermissions" value="{{ $permission->id }}">
                 {{ ucfirst($permission->name) }}
             </label>
-        @endforeach --}}
-
-           @foreach ($permissions as $permission)
-            <input type="checkbox" wire:model="selectedPermissions" value="{{ $permission->id }}">
-            <label>{{ $permission->name }}</label>
         @endforeach
 
-        @foreach ($roles as $role)
+
+        {{-- @foreach ($roles as $role)
             <input type="checkbox" wire:model="selectedRoles" value="{{ $role->id }}">
             <label>{{ $role->name }}</label>
-        @endforeach
+        @endforeach --}}
 
 
-        <button wire:click="updateRolePermissions">Update</button>
+        <button wire:click="updatePermissions">Update</button>
     @endif
 
     @if(session()->has('message'))
