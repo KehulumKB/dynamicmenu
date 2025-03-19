@@ -23,6 +23,13 @@
                 </flux:navlist.group>
             </flux:navlist>
 
+              <flux:navlist variant="outline">
+                <flux:navlist.group :heading="__('')" class="grid">
+                    <flux:navlist.item icon="home" :href="route('manage-role')" :current="request()->routeIs('manage-role')" wire:navigate>{{ __('Manage Roles') }}</flux:navlist.item>
+                </flux:navlist.group>
+            </flux:navlist>
+
+
             <flux:spacer />
 
             {{-- <flux:navlist.group class="grid">
@@ -61,7 +68,7 @@
                     <li><a href="{{ route('dashboard') }}">{{ ucfirst($role) }} Dashboard</a></li>
                 @endforeach
             </ul> --}}
-
+{{--
             @php
             $permissions = auth()->user()->getAllPermissions(); // Get user's assigned permissions
             @endphp
@@ -72,6 +79,32 @@
                         {{ ucfirst($permission->name) }}
                     </a>
                 </li>
+            @endforeach --}}
+
+            @php
+                $menus = \App\Models\Menu::whereNull('parent_id')->orderBy('order')->get();
+            @endphp
+
+            @foreach($menus as $menu)
+                @if(auth()->user()->can($menu->permission))
+                    <li>
+                        <a href="{{ route($menu->route) }}">
+                            <i class="icon {{ $menu->icon }}"></i> {{ $menu->name }}
+                        </a>
+                        @php
+                            $subMenus = \App\Models\Menu::where('parent_id', $menu->id)->get();
+                        @endphp
+                        @if($subMenus->count())
+                            <ul>
+                                @foreach($subMenus as $subMenu)
+                                    @if(auth()->user()->can($subMenu->permission))
+                                        <li><a href="{{ route($subMenu->route) }}">{{ $subMenu->name }}</a></li>
+                                    @endif
+                                @endforeach
+                            </ul>
+                        @endif
+                        </li>
+                @endif
             @endforeach
 
             {{-- @php

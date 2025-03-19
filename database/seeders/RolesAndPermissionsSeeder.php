@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Menu;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -19,24 +20,46 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Define permissions
         $permissions = [
-            'manage-users',
-            'manage-projects',
-            'view-reports',
-            'manage-addresses',
+            'view_dashboard',
+            'manage_users',
+            'manage_roles',
+            'manage_menus',
         ];
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // Create roles and assign permissions
-        $admin = Role::firstOrCreate(['name' => 'Admin']);
-        $manager = Role::firstOrCreate(['name' => 'Manager']);
-        $user = Role::firstOrCreate(['name' => 'User']);
+        // Define roles and assign permissions
+        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
+        $adminRole->syncPermissions($permissions);
 
-        // Assign permissions to roles
-        $admin->givePermissionTo(['manage-users', 'manage-projects', 'view-reports', 'manage-addresses']);
-        $manager->givePermissionTo(['manage-projects', 'view-reports']);
-        $user->givePermissionTo(['view-reports']);
+        $userRole = Role::firstOrCreate(['name' => 'User']);
+        $userRole->givePermissionTo('view_dashboard');
+
+        // Create menus
+        $dashboardMenu = Menu::create([
+            'name' => 'Dashboard',
+            'icon' => 'home',
+            'route' => 'dashboard',
+            'order' => 1,
+            'permission' => 'view_dashboard'
+        ]);
+
+        $userMenu = Menu::create([
+            'name' => 'Users',
+            'icon' => 'users',
+            'route' => 'users.index',
+            'order' => 2,
+            'permission' => 'manage_users'
+        ]);
+
+        $rolesMenu = Menu::create([
+            'name' => 'Roles',
+            'icon' => 'shield',
+            'route' => 'roles.index',
+            'order' => 3,
+            'permission' => 'manage_roles'
+        ]);
     }
 }
