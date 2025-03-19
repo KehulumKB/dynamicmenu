@@ -17,17 +17,84 @@
                 </flux:navlist.group>
             </flux:navlist>
 
+            <flux:navlist variant="outline">
+                <flux:navlist.group :heading="__('')" class="grid">
+                    <flux:navlist.item icon="home" :href="route('manage.role.perm')" :current="request()->routeIs('manage.role.perm')" wire:navigate>{{ __('Manage Permissions') }}</flux:navlist.item>
+                </flux:navlist.group>
+            </flux:navlist>
+
             <flux:spacer />
 
-            <flux:navlist variant="outline">
-                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                {{ __('Repository') }}
+            {{-- <flux:navlist.group class="grid">
+                @can('manage-projects')
+                <flux:navlist.item icon="building-office-2" :href="route('manage-projects')">
+                    {{ __('Manage Projects') }}
                 </flux:navlist.item>
+                @endcan
 
-                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits" target="_blank">
-                {{ __('Documentation') }}
+                @can('manage-users')
+                <flux:navlist.item icon="users" :href="route('manage-users')">
+                    {{ __('Manage Users') }}
                 </flux:navlist.item>
-            </flux:navlist>
+                @endcan
+
+                @can('view-reports')
+                <flux:navlist.item icon="chart-bar" :href="route('view-reports')">
+                    {{ __('View Reports') }}
+                </flux:navlist.item>
+                @endcan
+
+                @can('manage-addresses')
+                <flux:navlist.item icon="chart-bar" :href="route('manage-addresses')" wire:navigate>
+                    {{ __('Mabage Addresses') }}
+                </flux:navlist.item>
+                @endcan
+
+            </flux:navlist.group> --}}
+{{--
+            <ul>
+                @foreach(auth()->user()->getPermissionsViaRoles() as $permission)
+                <li><a href="{{ route($permission->name) }}">{{ ucfirst($permission->name) }}</a></li>
+                @endforeach
+
+                @foreach(auth()->user()->getRoleNames() as $role)
+                    <li><a href="{{ route('dashboard') }}">{{ ucfirst($role) }} Dashboard</a></li>
+                @endforeach
+            </ul> --}}
+
+            @php
+            $permissions = auth()->user()->getAllPermissions(); // Get user's assigned permissions
+            @endphp
+
+            @foreach($permissions as $permission)
+                <li>
+                    <a href="{{ route($permission->name) }}">
+                        {{ ucfirst($permission->name) }}
+                    </a>
+                </li>
+            @endforeach
+
+            {{-- @php
+            $role = auth()->user()->roles->first(); // Get the first role of the user
+            @endphp
+
+            @if($role)
+                <li>
+                    <strong>Role: {{ ucfirst($role->name) }}</strong>
+                </li>
+
+                @foreach($role->permissions as $permission)
+                    <li>
+                        <a href="{{ route($permission->name) }}">
+                            {{ ucfirst($permission->name) }}
+                        </a>
+                    </li>
+                @endforeach
+            @endif --}}
+
+
+
+         <flux:spacer />
 
             <!-- Desktop User Menu -->
             <flux:dropdown position="bottom" align="start">
